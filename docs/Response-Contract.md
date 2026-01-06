@@ -24,8 +24,6 @@ Implementation must adapt to this contract — not the other way around.
 
 ## Allowed Response Types
 
-The system may return **ONLY** the following response types:
-
 - `text`
 - `video_vod`
 - `video_live`
@@ -34,13 +32,9 @@ The system may return **ONLY** the following response types:
 - `stats`
 - `error`
 
-Any new feature must map to one of these types or require a new contract version.
-
 ---
 
 ## Master Response Envelope
-
-ALL responses returned by the orchestrator MUST conform to this envelope.
 
 ```json
 {
@@ -52,21 +46,19 @@ ALL responses returned by the orchestrator MUST conform to this envelope.
     "status": "ok | unavailable | error"
   }
 }
+```
+
 Rules:
+- `type` controls frontend rendering
+- `payload` is type-specific
+- `meta.source` identifies the authority
+- `meta.status` reflects availability
 
-type controls frontend rendering
+---
 
-payload is type-specific
+## TEXT
 
-meta.source identifies the authoritative provider
-
-meta.status reflects availability, not intent success
-
-TEXT
-Used as a safe fallback when no specific intent is matched.
-
-json
-Copy code
+```json
 {
   "type": "text",
   "payload": {
@@ -78,19 +70,13 @@ Copy code
     "status": "ok"
   }
 }
-Rules:
+```
 
-No HTML
+---
 
-No media
+## VIDEO_VOD
 
-No hallucinated links
-
-VIDEO_VOD
-Used for on-demand video returned from the XSEN Video MCP.
-
-json
-Copy code
+```json
 {
   "type": "video_vod",
   "payload": {
@@ -111,19 +97,13 @@ Copy code
     "status": "ok"
   }
 }
-Rules:
+```
 
-Results MUST come from the XSEN Video MCP
+---
 
-All URLs must be real
+## VIDEO_LIVE
 
-No fabricated thumbnails or links
-
-VIDEO_LIVE
-Used to launch a live video stream hosted on an external platform.
-
-json
-Copy code
+```json
 {
   "type": "video_live",
   "payload": {
@@ -139,17 +119,13 @@ Copy code
     "status": "ok"
   }
 }
-Rules:
+```
 
-The bot never streams video
+---
 
-The bot only points to live streams
+## AUDIO
 
-AUDIO
-Used to launch live or recorded audio streams.
-
-json
-Copy code
+```json
 {
   "type": "audio",
   "payload": {
@@ -164,17 +140,13 @@ Copy code
     "status": "ok"
   }
 }
-Rules:
+```
 
-Audio is hosted externally
+---
 
-No audio bytes pass through chat
+## TRIVIA
 
-TRIVIA
-Used for structured trivia questions.
-
-json
-Copy code
+```json
 {
   "type": "trivia",
   "payload": {
@@ -190,17 +162,13 @@ Copy code
     "status": "ok"
   }
 }
-Rules:
+```
 
-Trivia is deterministic
+---
 
-No AI-generated questions
+## STATS
 
-STATS
-Used for authoritative sports statistics from ESPN and college football MCPs.
-
-json
-Copy code
+```json
 {
   "type": "stats",
   "payload": {
@@ -223,17 +191,13 @@ Copy code
     "status": "ok"
   }
 }
-Rules:
+```
 
-Stats MUST come from MCPs
+---
 
-No inferred or guessed data
+## ERROR
 
-ERROR
-Used when a requested service is unavailable or fails.
-
-json
-Copy code
+```json
 {
   "type": "error",
   "payload": {
@@ -245,21 +209,14 @@ Copy code
     "status": "error"
   }
 }
-Rules:
+```
 
-Never guess
+---
 
-Fail clearly and honestly
+## Contract Rules (Non-Negotiable)
 
-Contract Rules (Non-Negotiable)
-Existing fields may NOT be renamed or removed
-
-Optional fields may be added in future versions
-
-New response types require a new contract version
-
-Frontend MUST switch on type only
-
-MCP failures must never result in fabricated responses
-
-This document is the single source of truth for the XSEN / Boomer Bot platform.
+- Fields may NOT be renamed or removed
+- Optional fields may be added later
+- New response types require a new contract version
+- Frontend MUST switch on `type`
+- MCP failures must never fabricate data

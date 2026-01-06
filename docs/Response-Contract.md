@@ -263,28 +263,3 @@ Frontend MUST switch on type only
 MCP failures must never result in fabricated responses
 
 This document is the single source of truth for the XSEN / Boomer Bot platform.
-
-yaml
-Copy code
-
----
-
-## ✅ TASK STATUS: **COMPLETE**
-
-You now have:
-- One correct contract file
-- Correct Markdown
-- Correct JSON
-- Correct structure
-- No cleanup required
-
-### Your next action
-1. Paste
-2. Commit
-3. Stop
-
-When ready, say:
-
-**“Contract committed.”**
-
-We move on to frontend renderers next.

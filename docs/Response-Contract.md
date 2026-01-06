@@ -1,7 +1,7 @@
 # XSEN / Boomer Bot — Response Contract (v1)
 
-**Status:** Locked  
-**Audience:** Frontend, Orchestrator, MCP Integrations  
+**Status:** LOCKED  
+**Audience:** Frontend UI, Railway Orchestrator, MCP Integrations  
 
 This document defines the immutable response contract for the XSEN / Boomer Bot platform.
 
@@ -14,17 +14,17 @@ Implementation must adapt to this contract — not the other way around.
 
 ## Design Principles
 
-- Boomer Bot is a router, not a conversational AI
-- No response may hallucinate data
+- Boomer Bot is a **router**, not a conversational AI
+- The system must **never hallucinate**
 - All authoritative data must come from MCPs or known services
-- Media is never streamed through the bot
-- Frontend behavior is driven strictly by `type`
+- Media is **never streamed through chat**
+- Frontend behavior is driven **only by the `type` field**
 
 ---
 
 ## Allowed Response Types
 
-The system may return ONLY the following response types:
+The system may return **ONLY** the following response types:
 
 - `text`
 - `video_vod`
@@ -40,7 +40,7 @@ Any new feature must map to one of these types or require a new contract version
 
 ## Master Response Envelope
 
-All responses returned by the orchestrator MUST conform to this envelope.
+ALL responses returned by the orchestrator MUST conform to this envelope.
 
 ```json
 {
@@ -52,8 +52,18 @@ All responses returned by the orchestrator MUST conform to this envelope.
     "status": "ok | unavailable | error"
   }
 }
+Rules:
+
+type controls frontend rendering
+
+payload is type-specific
+
+meta.source identifies the authoritative provider
+
+meta.status reflects availability, not intent success
+
 TEXT
-Used as a safe fallback when no intent is matched.
+Used as a safe fallback when no specific intent is matched.
 
 json
 Copy code
@@ -77,7 +87,7 @@ No media
 No hallucinated links
 
 VIDEO_VOD
-Used for on-demand video results returned from the XSEN Video MCP.
+Used for on-demand video returned from the XSEN Video MCP.
 
 json
 Copy code
@@ -215,7 +225,7 @@ Copy code
 }
 Rules:
 
-Stats must come from MCPs only
+Stats MUST come from MCPs
 
 No inferred or guessed data
 
@@ -248,36 +258,33 @@ Optional fields may be added in future versions
 
 New response types require a new contract version
 
-Frontend logic MUST switch on type only
+Frontend MUST switch on type only
 
 MCP failures must never result in fabricated responses
 
 This document is the single source of truth for the XSEN / Boomer Bot platform.
 
-vbnet
+yaml
 Copy code
 
 ---
 
-## ✅ What to Do Now
+## ✅ TASK STATUS: **COMPLETE**
 
-1. Paste this **exactly** into  
-   `docs/XSEN-BoomerBot-Response-Contract.md`
-2. Commit it
+You now have:
+- One correct contract file
+- Correct Markdown
+- Correct JSON
+- Correct structure
+- No cleanup required
+
+### Your next action
+1. Paste
+2. Commit
 3. Stop
 
-You are **done with documentation** for this phase.
+When ready, say:
 
-When you’re ready to continue, the next step is:
+**“Contract committed.”**
 
-> **Build frontend renderers using mock responses from this contract.**
-
-If you want, say:  
-**“Contract committed — verify structure.”**
-
-
-
-
-
-
-
+We move on to frontend renderers next.

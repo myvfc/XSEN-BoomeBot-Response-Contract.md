@@ -5,7 +5,7 @@ renderLoading(out, "Fetching stats…");
 
 // Fetch real data
 fetch("data.json")
-  .then(res => {
+   .then(res => {
     if (!res.ok) throw new Error("Network error");
     return res.json();
   })
@@ -27,6 +27,7 @@ fetch("data.json")
       }
     });
   });
+
 // ==============================
 // Router
 // ==============================
@@ -43,6 +44,11 @@ function renderResponse(res) {
   case "error":
     renderError(res.payload, out);
     break;
+
+  case "trivia":
+    renderTrivia(res.payload, out);
+    break;
+
 
   default:
     out.innerHTML = "<div class='card'>Unknown response type</div>";
@@ -79,6 +85,32 @@ function renderError(payload, out) {
       ❌ ${payload.message}
     </div>
   `;
+}
+
+function renderTrivia(payload, out) {
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const question = document.createElement("h3");
+  question.textContent = payload.question;
+  card.appendChild(question);
+
+  payload.choices.forEach(choice => {
+    const btn = document.createElement("button");
+    btn.textContent = choice;
+    btn.className = "choice";
+    btn.style.display = "block";
+    btn.style.margin = "8px 0";
+    btn.style.width = "100%";
+
+    btn.onclick = () => {
+      btn.style.background = "#e5e7eb";
+    };
+
+    card.appendChild(btn);
+  });
+
+  out.appendChild(card);
 }
 
 

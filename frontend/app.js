@@ -10,7 +10,11 @@ renderLoading(out, "Fetching content…");
 // 🤖 Simulated GPT output (INTENT ONLY)
 // Change this to test different intents
 const gptOutput = `
-{ "type": "video", "mode": "vod" }
+{
+  "type": "video_vod",
+  "query": "highlights",
+  "limit": 3
+}
 `;
 
 // Show what GPT "said"
@@ -48,7 +52,10 @@ async function resolveIntent(res) {
   }
 
 // 🎬 VIDEO ON DEMAND (via Video MCP)
-if (res.type === "video") {
+if (
+  res.type === "video" ||
+  (res.type === "video_vod" && !res.payload)
+) {
   try {
     const data = await withTimeout(fetchVideoVOD(), 2000);
 
@@ -78,8 +85,8 @@ if (res.type === "video") {
 setTimeout(async () => {
   let resolved = safeData;
 
-  // 🔐 Ensure intent is always resolved before rendering
-  if (resolved.type === "video" || resolved.type === "audio") {
+  // 🔁 Always resolve if no payload is present
+  if (!resolved.payload) {
     resolved = await resolveIntent(resolved);
   }
 

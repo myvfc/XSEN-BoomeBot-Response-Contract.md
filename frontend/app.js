@@ -1,11 +1,12 @@
 const out = document.getElementById("output");
 
 // Show loading immediately
-renderLoading(out, "Fetching stats…");
+renderLoading(out, "Fetching live audio…");
 
 // Fetch real data
-fetch("data.json")
-   .then(res => {
+fetch("audio_live.json")
+
+  .then(res => {
     if (!res.ok) throw new Error("Network error");
     return res.json();
   })
@@ -13,20 +14,25 @@ fetch("data.json")
     document.getElementById("jsonInput").textContent =
       JSON.stringify(data, null, 2);
 
-    renderResponse(data);
+    // Force loading state to be visible
+    setTimeout(() => {
+      renderResponse(data);
+    }, 500);
   })
-  .catch(err => {
-    console.error(err);
-    renderResponse({
-      type: "error",
-      payload: { message: "Failed to load stats." },
-      meta: {
-        source: "INTERNAL",
-        timestamp: new Date().toISOString(),
-        status: "error"
-      }
-    });
+
+.catch(err => {
+  console.error(err);
+  renderResponse({
+    type: "error",
+    payload: { message: "Failed to load live audio." },
+    meta: {
+      source: "INTERNAL",
+      timestamp: new Date().toISOString(),
+      status: "error"
+    }
   });
+});
+
 
 // ==============================
 // Router
@@ -36,24 +42,30 @@ function renderResponse(res) {
   const out = document.getElementById("output");
   out.innerHTML = "";
 
- switch (res.type) {
-  case "stats":
-    renderStats(res.payload, out);
-    break;
+  switch (res.type) {
+    case "stats":
+      renderStats(res.payload, out);
+      break;
 
-  case "error":
-    renderError(res.payload, out);
-    break;
+    case "trivia":
+      renderTrivia(res.payload, out);
+      break;
 
-  case "trivia":
-    renderTrivia(res.payload, out);
-    break;
+    case "video_vod":
+      renderVideoVOD(res.payload, out);
+      break;
 
+    case "audio":
+      renderAudio(res.payload, out);
+      break;
 
-  default:
-    out.innerHTML = "<div class='card'>Unknown response type</div>";
-}
+    case "error":
+      renderError(res.payload, out);
+      break;
 
+    default:
+      out.innerHTML = "<div class='card'>Unknown response type</div>";
+  }
 }
 
 // ==============================
@@ -109,6 +121,41 @@ function renderTrivia(payload, out) {
 
     card.appendChild(btn);
   });
+
+  out.appendChild(card);
+}
+
+function renderVideoVOD(payload, out) {
+  payload.results.forEach(video => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <h3>${video.title}</h3>
+      <img src="${video.thumbnail}" style="width:100%; border-radius:6px;" />
+      <p>Duration: ${video.duration}</p>
+      <a href="${video.url}" target="_blank">Watch Video</a>
+    `;
+
+    out.appendChild(card);
+  });
+}
+
+function renderAudio(payload, out) {
+  const card = document.createElement("div");
+  card.className = "card";
+
+  card.innerHTML = `
+    <h3>${payload.title}</h3>
+    <p>${payload.description || ""}</p>
+
+    <audio controls style="width:100%; margin-top:10px;">
+      <source src="${payload.stream_url}" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+
+    ${payload.is_live ? "<p><strong>🔴 Live</strong></p>" : ""}
+  `;
 
   out.appendChild(card);
 }

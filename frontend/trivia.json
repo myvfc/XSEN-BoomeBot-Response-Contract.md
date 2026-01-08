@@ -1,0 +1,20 @@
+{
+  "type": "trivia",
+  "payload": {
+    "id": "q1",
+    "question": "Which Oklahoma Sooner won the 2003 Heisman Trophy?",
+    "choices": [
+      "Jason White",
+      "Baker Mayfield",
+      "Kyler Murray",
+      "Sam Bradford"
+    ],
+    "difficulty": "easy",
+    "category": "football"
+  },
+  "meta": {
+    "source": "INTERNAL",
+    "timestamp": "2025-01-01T00:00:00Z",
+    "status": "ok"
+  }
+}

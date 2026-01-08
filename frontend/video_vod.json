@@ -1,0 +1,28 @@
+{
+  "type": "video_vod",
+  "payload": {
+    "results": [
+      {
+        "id": "vid1",
+        "title": "OU vs Texas Highlights (2023)",
+        "thumbnail": "https://via.placeholder.com/300x170",
+        "url": "https://example.com/video1",
+        "duration": "10:32",
+        "published_at": "2023-10-07T00:00:00Z"
+      },
+      {
+        "id": "vid2",
+        "title": "Oklahoma Sooners Top Plays",
+        "thumbnail": "https://via.placeholder.com/300x170",
+        "url": "https://example.com/video2",
+        "duration": "8:15",
+        "published_at": "2023-09-21T00:00:00Z"
+      }
+    ]
+  },
+  "meta": {
+    "source": "XSEN",
+    "timestamp": "2025-01-01T00:00:00Z",
+    "status": "ok"
+  }
+}

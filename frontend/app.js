@@ -1,5 +1,13 @@
+
 import { ingestFromGPT } from "./contracts/ingestFromGPT.js";
 import { fetchVideoVOD } from "./contracts/videoMCP.js";
+
+// 🔐 Subscription state (mock for now)
+const subscription = {
+  tier: "pro", // "free" | "pro" | "premium"
+  authenticated: true
+};
+
 
 
 const out = document.getElementById("output");
@@ -35,6 +43,24 @@ function withTimeout(promise, ms = 2000) {
   ]);
 }
 
+function hasAccess(intent) {
+  // Always allow errors & text-only responses
+  if (intent.type === "error") return true;
+
+  // Audio is free
+  if (intent.type === "audio") return true;
+
+  // Video requires Pro+
+  if (
+    intent.type === "video" ||
+    intent.type === "video_vod"
+  ) {
+    return subscription.tier !== "free";
+  }
+
+  // Default allow
+  return true;
+}
 
 async function resolveIntent(res) {
 
@@ -83,16 +109,26 @@ if (
 
 // Render resolved response
 setTimeout(async () => {
-  let resolved = safeData;
+  let intent = safeData;
 
-  // 🔁 Always resolve if no payload is present
-  if (!resolved.payload) {
-    resolved = await resolveIntent(resolved);
+  // 🔐 PAYWALL CHECK
+  if (!hasAccess(intent)) {
+    renderResponse({
+      type: "error",
+      payload: {
+        message: "🔒 This feature requires a subscription."
+      }
+    });
+    return;
   }
 
-  renderResponse(resolved);
-}, 500);
+  // 🔁 Resolve intent if needed
+  if (!intent.payload) {
+    intent = await resolveIntent(intent);
+  }
 
+  renderResponse(intent);
+}, 500);
 
 // ==============================
 // Router

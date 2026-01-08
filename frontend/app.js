@@ -1,4 +1,6 @@
 import { ingestFromGPT } from "./contracts/ingestFromGPT.js";
+import { fetchVideoVOD } from "./contracts/videoMCP.js";
+
 
 const out = document.getElementById("output");
 
@@ -8,10 +10,7 @@ renderLoading(out, "Fetching content…");
 // 🤖 Simulated GPT output (INTENT ONLY)
 // Change this to test different intents
 const gptOutput = `
-{
-  "type": "audio",
-  "mode": "live"
-}
+{ "type": "video", "mode": "vod" }
 `;
 
 // Show what GPT "said"
@@ -23,8 +22,18 @@ const safeData = ingestFromGPT(gptOutput);
 // ==============================
 // ✅ INTENT RESOLVER (AUDIO + VIDEO)
 // ==============================
+function withTimeout(promise, ms = 2000) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("MCP timeout")), ms)
+    )
+  ]);
+}
 
-function resolveIntent(res) {
+
+async function resolveIntent(res) {
+
   // 🎧 LIVE AUDIO
   if (res.type === "audio" && res.mode === "live") {
     return {
@@ -38,36 +47,43 @@ function resolveIntent(res) {
     };
   }
 
-  // 🎬 VIDEO ON DEMAND
-  if (res.type === "video" && res.mode === "vod") {
+// 🎬 VIDEO ON DEMAND (via Video MCP)
+if (res.type === "video") {
+  try {
+    const data = await withTimeout(fetchVideoVOD(), 2000);
+
     return {
       type: "video_vod",
+      payload: data
+    };
+  } catch (err) {
+    console.error("Video MCP failed:", err);
+
+    return {
+      type: "error",
       payload: {
-        results: [
-          {
-            title: "OU Highlights vs Texas",
-            thumbnail: "https://via.placeholder.com/640x360?text=OU+Highlights",
-            duration: "8:42",
-            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-          },
-          {
-            title: "Top Plays of the Season",
-            thumbnail: "https://via.placeholder.com/640x360?text=Top+Plays",
-            duration: "12:15",
-            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-          }
-        ]
+        message: "Video content is temporarily unavailable. Please try again later."
       }
     };
   }
+}
+
+
 
   // Pass through render-ready responses
   return res;
 }
 
 // Render resolved response
-setTimeout(() => {
-  renderResponse(resolveIntent(safeData));
+setTimeout(async () => {
+  let resolved = safeData;
+
+  // 🔐 Ensure intent is always resolved before rendering
+  if (resolved.type === "video" || resolved.type === "audio") {
+    resolved = await resolveIntent(resolved);
+  }
+
+  renderResponse(resolved);
 }, 500);
 
 

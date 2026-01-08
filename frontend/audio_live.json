@@ -3,7 +3,7 @@
   "payload": {
     "title": "Boomer Bot Live Fan Cast",
     "description": "Live Oklahoma Sooners fan commentary",
-    "stream_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+  "stream_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
     "is_live": true
   },
   "meta": {

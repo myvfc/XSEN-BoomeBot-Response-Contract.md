@@ -1,37 +1,74 @@
+import { ingestFromGPT } from "./contracts/ingestFromGPT.js";
+
 const out = document.getElementById("output");
 
 // Show loading immediately
-renderLoading(out, "Fetching live audio…");
+renderLoading(out, "Fetching content…");
 
-// Fetch real data
-fetch("audio_live.json")
+// 🤖 Simulated GPT output (INTENT ONLY)
+// Change this to test different intents
+const gptOutput = `
+{
+  "type": "audio",
+  "mode": "live"
+}
+`;
 
-  .then(res => {
-    if (!res.ok) throw new Error("Network error");
-    return res.json();
-  })
-  .then(data => {
-    document.getElementById("jsonInput").textContent =
-      JSON.stringify(data, null, 2);
+// Show what GPT "said"
+document.getElementById("jsonInput").textContent = gptOutput;
 
-    // Force loading state to be visible
-    setTimeout(() => {
-      renderResponse(data);
-    }, 500);
-  })
+// ✅ SAFETY GATE
+const safeData = ingestFromGPT(gptOutput);
 
-.catch(err => {
-  console.error(err);
-  renderResponse({
-    type: "error",
-    payload: { message: "Failed to load live audio." },
-    meta: {
-      source: "INTERNAL",
-      timestamp: new Date().toISOString(),
-      status: "error"
-    }
-  });
-});
+// ==============================
+// ✅ INTENT RESOLVER (AUDIO + VIDEO)
+// ==============================
+
+function resolveIntent(res) {
+  // 🎧 LIVE AUDIO
+  if (res.type === "audio" && res.mode === "live") {
+    return {
+      type: "audio",
+      payload: {
+        title: "Boomer Bot Live Fan Cast",
+        description: "Live Oklahoma Sooners fan commentary",
+        stream_url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+        is_live: true
+      }
+    };
+  }
+
+  // 🎬 VIDEO ON DEMAND
+  if (res.type === "video" && res.mode === "vod") {
+    return {
+      type: "video_vod",
+      payload: {
+        results: [
+          {
+            title: "OU Highlights vs Texas",
+            thumbnail: "https://via.placeholder.com/640x360?text=OU+Highlights",
+            duration: "8:42",
+            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+          },
+          {
+            title: "Top Plays of the Season",
+            thumbnail: "https://via.placeholder.com/640x360?text=Top+Plays",
+            duration: "12:15",
+            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+          }
+        ]
+      }
+    };
+  }
+
+  // Pass through render-ready responses
+  return res;
+}
+
+// Render resolved response
+setTimeout(() => {
+  renderResponse(resolveIntent(safeData));
+}, 500);
 
 
 // ==============================
@@ -60,7 +97,7 @@ function renderResponse(res) {
       break;
 
     case "error":
-      renderError(res.payload, out);
+      renderError(res.payload || { message: "Invalid response" }, out);
       break;
 
     default:
@@ -69,7 +106,7 @@ function renderResponse(res) {
 }
 
 // ==============================
-// Renderer
+// Renderers
 // ==============================
 
 function renderStats(payload, out) {
@@ -159,7 +196,6 @@ function renderAudio(payload, out) {
 
   out.appendChild(card);
 }
-
 
 function renderLoading(out, message = "Loading…") {
   out.innerHTML = `

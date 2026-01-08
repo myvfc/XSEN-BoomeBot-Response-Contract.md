@@ -1,0 +1,14 @@
+{
+  "type": "audio",
+  "payload": {
+    "title": "Boomer Bot Live Game Audio",
+    "description": "OU vs Texas live fan broadcast",
+    "stream_url": "https://example.com/stream.mp3",
+    "is_live": true
+  },
+  "meta": {
+    "source": "XSEN",
+    "timestamp": "2025-10-07T00:00:00Z",
+    "status": "ok"
+  }
+}

@@ -1,24 +1,32 @@
-// Mock Video MCP
-// Simulates a real MCP server response
+// XSEN Video MCP Adapter
+// Connects XSEN frontend to the real XSEN Video MCP backend
 
-export async function fetchVideoVOD() {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 300));
+export async function fetchVideoVOD({ query = "", limit = 3 } = {}) {
+  const BASE_URL = "https://xsen-mcp-production.up.railway.app";
 
-  return {
-    results: [
-      {
-        title: "OU Highlights vs Texas",
-        thumbnail: "https://via.placeholder.com/640x360?text=OU+Highlights",
-        duration: "8:42",
-        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-      },
-      {
-        title: "Top Plays of the Season",
-        thumbnail: "https://via.placeholder.com/640x360?text=Top+Plays",
-        duration: "12:15",
-        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+  const response = await fetch(
+    `${BASE_URL}/videos?query=${encodeURIComponent(query)}&limit=${limit}`,
+    {
+      method: "GET",
+      headers: {
+        "Accept": "application/json"
       }
-    ]
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("XSEN Video service request failed");
+  }
+
+  const data = await response.json();
+
+  // 🔁 Normalize response to XSEN frontend contract
+  return {
+    results: (data.results || []).map(video => ({
+      title: video.title,
+      thumbnail: video.thumbnail,
+      duration: video.duration,
+      url: video.url
+    }))
   };
 }

@@ -83,7 +83,14 @@ if (
   (res.type === "video_vod" && !res.payload)
 ) {
   try {
-    const data = await withTimeout(fetchVideoVOD(), 2000);
+    const data = await withTimeout(
+  fetchVideoVOD({
+    query: res.query || "",
+    limit: res.limit || 3
+  }),
+  2000
+);
+
 
     return {
       type: "video_vod",
